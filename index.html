@@ -6798,11 +6798,14 @@ function executeAddressSearch() {
     ).value =
         searchInput.value;
 
-    // =====同步到DATA=====
-    document.getElementById(
-        "accidentAddressSearch"
-    ).value =
-        searchInput.value;
+// ===== USER → DATA=====
+document.getElementById(
+    "accidentAddressSearch"
+).value =
+    searchInput.value;
+
+// 自動啟動 DATA 地址搜尋
+debounceSearchCombined();
 		//debounceSearchCombined();
 		
 		// 不帶入圖號
@@ -7025,8 +7028,24 @@ function executeTpcSearch(){
         " 筆";
 
     statusText.style.color="#27AE60";
+	
+// 自動同步到 DATA 圖號座標
+document.getElementById(
+    "currentSearchTpc"
+).value = keyword.substring(0,7);
 
-    renderResults(results);
+searchTpcInCsv(
+    keyword.substring(0,7)
+);
+
+// 自動同步到 NDCIS 圖號座標
+document.getElementById(
+    "ndcisTpcSearch"
+).value = keyword.substring(0,7);
+
+searchNDCIS();
+
+renderResults(results);
 }
 
 function updateServiceArea(custNo){
