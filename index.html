@@ -6631,6 +6631,7 @@ window.fromMainAddressSearch = false;
 );
 	const tpcSearchInput =document.getElementById('tpcSearchInput');
 	const custNoSearchInput =document.getElementById('custNoSearchInput');
+	const custNameSearchInput =document.getElementById('custNameSearchInput');
     const searchBtn = document.getElementById('searchAddressBtn');
     const statusText = document.getElementById('dataStatus');
     const resultsTableBody = document.querySelector('#searchResultsTable tbody');
@@ -6774,6 +6775,13 @@ statusText.style.color = "#27AE60";
     }, 300)
 );
 
+custNameSearchInput.addEventListener(
+    'input',
+    debounce(function(){
+        executeCustNameSearch();
+    },300)
+);
+
     searchInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') executeAddressSearch();
     });
@@ -6797,18 +6805,13 @@ function executeAddressSearch() {
         searchInput.value;
 		//debounceSearchCombined();
 		
-		var tpc7 =
-    document.getElementById(
-        "tpcSearchInput"
-    ).value
-    .toUpperCase()
-    .substring(0,7);
-
+		// 不帶入圖號
 document.getElementById(
     "currentSearchTpc"
-).value = tpc7;
+).value = "";
 
-searchTpcInCsv(tpc7);
+// 不執行圖號搜尋
+// searchTpcInCsv(tpc7);
 		
 
     // =====同步到NDCIS=====
@@ -7250,6 +7253,38 @@ if(tpc.length >= 6){
 
 
     //renderResults(results);
+}
+
+function executeCustNameSearch(){
+
+    var keyword =
+        document.getElementById(
+            "custNameSearchInput"
+        ).value.trim();
+
+    if(keyword.length < 2){
+        return;
+    }
+
+    var results =
+        userDataset.filter(function(item){
+
+            // user.csv 第4欄(姓名)
+            var custName =
+                (item.raw[4] || "")
+                .trim();
+
+            return custName.indexOf(keyword) >= 0;
+        });
+
+    statusText.innerHTML =
+        "已載入 " +
+        userDataset.length.toLocaleString() +
+        " 筆，找到 " +
+        results.length.toLocaleString() +
+        " 筆";
+
+    renderResults(results);
 }
 
 
@@ -7999,7 +8034,7 @@ padding:5px;
 id="memoBox"
 placeholder="請輸入備註
 操作說明：
-1．請手動載入下方data.csv及user.csv檔案。
+1．配電圖資僅限用Edge調閱，請手動載入下方data用Edge調閱，請手動載入下方data.csv及user.csv檔案。
 2．拖拉定位點可轉換台電座標、地址(可用於反查NDCIS案件)自動帶入下方變壓器查詢，點選下方連結可開啟圖資PDF檔，點擊九宮格可直接變換圖號下載圖資PDF檔。
 3．地圖上按右鍵可定位地圖中心點。
 4．在地圖上按左鍵2下建立定位點圓圈，在定位點圓圈上按右鍵可刪除圓圈。
@@ -8189,6 +8224,18 @@ style="display:none;">
     style="width:130px;padding:5px;"
 />
 
+<label style="font-weight:bold;margin-left:15px;">
+5. 用戶名稱：
+</label>
+
+<input
+    type="text"
+    id="custNameSearchInput"
+    placeholder="輸入用戶名稱"
+    style="width:130px;padding:5px;"
+/>
+
+
 <span id="serviceAreaLabel"
       style="
       color:red;
@@ -8204,6 +8251,7 @@ onclick="
 document.getElementById('addressSearchInput').value='';
 document.getElementById('tpcSearchInput').value='';
 document.getElementById('custNoSearchInput').value='';
+document.getElementById('custNameSearchInput').value='';
 
 var tbody=document.querySelector('#searchResultsTable tbody');
 if(tbody){
@@ -10649,7 +10697,9 @@ document.getElementById('lineAreaInfo').value = '';
     document.getElementById('addressSearchInput').value='';
     document.getElementById('tpcSearchInput').value='';
     document.getElementById('custNoSearchInput').value='';
+	document.getElementById('custNameSearchInput').value='';
     document.getElementById('serviceAreaLabel').innerHTML='';
+	
 
     // ========= DATA =========
     document.getElementById('currentSearchTpc').value='';
