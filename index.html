@@ -1131,6 +1131,18 @@ clearAndFillNdcisAddress(
 );
 
 
+var userAddrBox =
+    document.getElementById(
+        "addressSearchInput"
+    );
+
+if(userAddrBox){
+    userAddrBox.value =
+        reverseAddress.value;
+}
+
+
+
     updateStreetView(lat,lng);
 
 });
@@ -4886,6 +4898,16 @@ clearAndFillNdcisAddress(
     reverseAddress.value
 );
 
+var userAddrBox =
+    document.getElementById(
+        "addressSearchInput"
+    );
+
+if(userAddrBox){
+    userAddrBox.value =
+        reverseAddress.value;
+}
+
 var tpcBox =
     document.getElementById("tpcSearchInput");
 
@@ -6621,14 +6643,18 @@ window.fromMainAddressSearch = false;
 
     const fileInput = document.getElementById('userCsvFileInput');
     const searchInput = document.getElementById('addressSearchInput');
+	/*
 	searchInput.addEventListener(
     'input',
     debounce(function(){
-        if(this.value.trim().length >= 2){
+
+        if(this.value.trim().length >= 4){
             executeAddressSearch();
         }
-    }, 300)
+
+    }, 3000)
 );
+*/
 	const tpcSearchInput =document.getElementById('tpcSearchInput');
 	const custNoSearchInput =document.getElementById('custNoSearchInput');
 	const custNameSearchInput =document.getElementById('custNameSearchInput');
@@ -8214,7 +8240,7 @@ margin-bottom:15px;
     <!-- 搜尋操作區塊 -->
     <div style="margin-bottom: 15px;">
         <label style="font-weight: bold;">2.地址(數字自動轉全形)：</label>
-        <input type="text" id="addressSearchInput" placeholder="請輸入欲查詢的地址（例如：中山路）" disabled style="width: 350px; padding: 5px; margin-left: 10px;" />
+        <input type="text" id="addressSearchInput" placeholder="請輸入地址（例如：自由路二段 + enter）" disabled style="width: 350px; padding: 5px; margin-left: 10px;" />
        <button id="searchAddressBtn"
 disabled
 style="display:none;">
