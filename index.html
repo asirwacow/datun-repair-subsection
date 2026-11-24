@@ -631,9 +631,13 @@ console.log(
 updateTPCLink(fullTPC);
 updateLineArea(fullTPC);
 
-      document.getElementById(
+document.getElementById(
     "currentSearchTpc"
 ).value = c.substring(0,7);
+
+updateDataTpcArea(
+    c.substring(0,7)
+);
 
 searchTpcInCsv(
     c.substring(0,7)
@@ -715,10 +719,13 @@ document.getElementById(
 ).value =
     a.substring(0,7);
 
-searchTpcInCsv(
+updateDataTpcArea(
     a.substring(0,7)
 );
 
+searchTpcInCsv(
+    a.substring(0,7)
+);
 // 帶入 USER 3.圖號座標
 var userTpcBox =
     document.getElementById(
@@ -1162,6 +1169,12 @@ document.getElementById(
     "currentSearchTpc"
 ).value = tpc7;
 
+document.getElementById(
+    "currentSearchTpc"
+).dispatchEvent(
+    new Event("input")
+);
+
     var tpcBox =
         document.getElementById(
             "tpcSearchInput"
@@ -1227,6 +1240,12 @@ var tpc7 = txtTPC.value
     document.getElementById(
         "currentSearchTpc"
     ).value = tpc7;
+	
+	document.getElementById(
+    "currentSearchTpc"
+).dispatchEvent(
+    new Event("input")
+);
 
     var tpcBox =
         document.getElementById(
@@ -4956,6 +4975,12 @@ document.getElementById(
     "currentSearchTpc"
 ).value = tpc7;
 
+document.getElementById(
+    "currentSearchTpc"
+).dispatchEvent(
+    new Event("input")
+);
+
 clearAndFillNdcisAddress(
     reverseAddress.value
 );
@@ -4994,6 +5019,81 @@ if(typeof searchTpcInCsv === "function"){
 		function clearHistory() { for (var a = sltHistory.length - 1; 0 <= a; a--)sltHistory.removeChild(sltHistory.options[a]) } function delHistory() { sltHistory.removeChild(sltHistory.options[sltHistory.selectedIndex]) } function updateHistory() { txtGoogle.value = sltHistory.options[sltHistory.selectedIndex].value; queryByGPS(txtGoogle.value, !1, !1, !0); var a = sltHistory.options[sltHistory.selectedIndex].text.split("\u3000"); txtTPC.value = a[0]; txtAddress.value = a[1] };
 		//連結舊版圖資
 
+function updateUserTpcArea(tpc){
+
+    var obj =
+    document.getElementById(
+        "serviceAreaLabel"
+    );
+
+    if(!obj) return;
+
+    tpc = String(tpc)
+        .toUpperCase()
+        .trim();
+
+    var picNo =
+        tpc.replace(/^G/i,"")
+           .substring(0,4);
+
+    if(picNo.length < 4){
+
+        obj.innerHTML = "";
+        return;
+
+    }
+
+    if(areaData[picNo]){
+
+        obj.innerHTML =
+            "轄區：" +
+            picNo + " " +
+            areaData[picNo][0] + " " +
+            areaData[picNo][1];
+
+    }else{
+
+        obj.innerHTML =
+            "轄區：非屯巡";
+    }
+}
+
+
+
+function updateDataTpcArea(tpc){
+
+    var obj =
+        document.getElementById(
+            "dataTpcAreaLabel"
+        );
+
+    if(!obj) return;
+
+    if(!tpc){
+        obj.innerHTML = "";
+        return;
+    }
+
+    tpc = tpc.toUpperCase();
+
+    var picNo =
+        tpc.substring(1,5);
+
+    if(areaData[picNo]){
+
+        obj.innerHTML =
+            "轄區：" +
+            picNo + " " +
+            areaData[picNo][0] + " " +
+            areaData[picNo][1];
+
+    }else{
+
+        obj.innerHTML =
+            "轄區：非屯巡";
+    }
+}
+
 function updateLineArea(tpc){
 
     var obj =
@@ -5008,7 +5108,10 @@ function updateLineArea(tpc){
         return;
     }
 
-    var picNo = tpc.substring(1,5);
+    var picNo =
+    tpc.replace(/^G/i,"")
+       .substring(0,4);
+
 
     if(areaData[picNo]){
 
@@ -7103,9 +7206,20 @@ function executeTpcSearch(){
         tpcSearchInput.value
         .trim()
         .toUpperCase();
+		
+		updateUserTpcArea(keyword);
+		
+		updateLineArea(keyword);
+		
+		
 
     // 少於 6 碼不搜尋
     if(keyword.length < 5){
+	
+	
+	document.getElementById(
+    "lineAreaInfo"
+).value = "";
 
         statusText.innerHTML =
             "已成功載入 " +
@@ -7147,9 +7261,13 @@ document.getElementById(
     "currentSearchTpc"
 ).value = keyword.substring(0,7);
 
+updateLineArea(keyword);
+
 searchTpcInCsv(
     keyword.substring(0,7)
 );
+
+updateLineArea(keyword);
 
 // 自動同步到 NDCIS 圖號座標
 document.getElementById(
@@ -7172,49 +7290,67 @@ function updateServiceArea(custNo){
 
     obj.innerHTML = "";
 
-    custNo = String(custNo)
-        .replace(/\D/g,"");
+custNo = String(custNo)
+    .replace(/\D/g,"");
 
-    if(custNo.length < 4){
-        return;
-    }
+var code4 =
+    custNo.substring(0,4);
 
-    var code =
-        custNo.substring(0,4);
+var code5 =
+    custNo.substring(0,5);
 
     var area = "";
 
     // 西屯
-    if(
-        code==="0726" ||
-        code==="0727" ||
-        code==="0739" ||
-        code==="0776" ||
-        code==="0701" ||
-        code==="0702"
-    ){
-        area = "西屯-屯巡";
-    }
+if(
+    code4==="0726" ||
+    code4==="0727" ||
+    code4==="0739" ||
+    code4==="0776" ||
+
+    code5==="07015" ||
+    code5==="07016" ||
+    code5==="07017" ||
+    code5==="07018" ||
+    code5==="07019" ||
+
+    code5==="07025" ||
+    code5==="07026" ||
+    code5==="07027" ||
+    code5==="07028" ||
+    code5==="07029"
+){
+    area = "西屯-屯巡";
+}
 
     // 南屯
-    else if(
-        code==="0728" ||
-        code==="0768" ||
-        code==="0769" ||
-        code==="0704" ||
-        code==="0712"
-    ){
-        area = "南屯-屯巡";
-    }
+   else if(
+    code4==="0728" ||
+    code4==="0768" ||
+    code4==="0769" ||
+
+    code5==="07045" ||
+    code5==="07046" ||
+    code5==="07047" ||
+    code5==="07048" ||
+    code5==="07049" ||
+
+    code5==="07126" ||
+    code5==="07127" ||
+    code5==="07128" ||
+    code5==="07129"
+){
+    area = "南屯-屯巡";
+}
 
     // 烏日
-    else if(
-        code==="0729" ||
-        code==="0750" ||
-        code==="0770"
-    ){
-        area = "烏日-屯巡";
-    }
+  else if(
+    code4==="0729" ||
+    code4==="0750" ||
+    code4==="0770"
+){
+    area = "烏日-屯巡";
+}
 if(area!==""){
     obj.innerHTML =
         "轄區：" + area;
@@ -8451,11 +8587,15 @@ style="display:none;">
 
 <span id="serviceAreaLabel"
       style="
-      color:red;
+      color:blue;
       font-weight:bold;
-      margin-left:10px;
+      font-size:20px;
+      margin-left:20px;
       ">
+轄區：
 </span>
+
+
 	
 
 <button
@@ -9465,6 +9605,8 @@ id="currentSearchTpc"
 oninput="
 var v=this.value.toUpperCase().trim();
 
+updateDataTpcArea(v);
+
 if(v.length>=6){
     searchTpcInCsv(v);
 }
@@ -9474,10 +9616,14 @@ if(v.length>=9){
     searchTpcInCsv(v);
 }
 "
-style="padding:5px;width:110px;font-weight:bold;color:#D35400;text-align:center;"
-placeholder="例：G----A"
-/>
+>
 
+<span id="dataTpcAreaLabel"
+      style="
+      color:blue;
+      font-weight:bold;
+      margin-left:10px;">
+</span>
 
 
 
@@ -10911,7 +11057,10 @@ document.getElementById('lineAreaInfo').value = '';
     document.getElementById('tpcSearchInput').value='';
     document.getElementById('custNoSearchInput').value='';
 	document.getElementById('custNameSearchInput').value='';
-    document.getElementById('serviceAreaLabel').innerHTML='';
+    document.getElementById(
+    'serviceAreaLabel'
+).innerHTML='轄區：';
+
 	
 
     // ========= DATA =========
