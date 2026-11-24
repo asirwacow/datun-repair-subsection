@@ -639,6 +639,35 @@ searchTpcInCsv(
     c.substring(0,7)
 );
 
+// USER 圖號座標
+var userTpcBox =
+document.getElementById(
+    "tpcSearchInput"
+);
+
+if(userTpcBox){
+    userTpcBox.value =
+        c.substring(0,7);
+
+    userTpcBox.dispatchEvent(
+        new Event("input")
+    );
+}
+
+// NDCIS 圖號座標
+var ndcisTpcBox =
+document.getElementById(
+    "ndcisTpcSearch"
+);
+
+if(ndcisTpcBox){
+    ndcisTpcBox.value =
+        c.substring(0,7);
+
+    searchNDCIS();
+}
+
+
 // 不啟動複合搜尋
 // document.getElementById(
 //     "currentSearchTpc"
@@ -841,20 +870,30 @@ directionsService = new google.maps.DirectionsService, service = new google.maps
 
 function updateStreetView(lat,lng){
 
-if(window.streetPanorama){
+    var googleMapFrame =
+        document.getElementById(
+            "googleMapView"
+        );
 
-streetPanorama.setPosition({
+    if(googleMapFrame){
 
-lat: parseFloat(lat),
+      googleMapFrame.src =
+"https://maps.google.com/maps?q="
++ lat + "," + lng +
+"&t=k&output=embed";
 
-lng: parseFloat(lng)
+    }
 
-});
+    if(window.streetPanorama){
 
-streetPanorama.setVisible(true);
+        streetPanorama.setPosition({
+            lat: parseFloat(lat),
+            lng: parseFloat(lng)
+        });
 
-}
+        streetPanorama.setVisible(true);
 
+    }
 }
 
 function updateRedCircleList(){
@@ -1036,17 +1075,31 @@ else{
 				}));
 				*/
 				// 2019/04/20 replace google.maps.Map with L.Map
-				var EMAP = L.tileLayer('https://wmts.nlsc.gov.tw/wmts/EMAP/default/EPSG:3857/{z}/{y}/{x}.png', {
-					maxZoom: 19
-				}),
-				PHOTO2 = L.tileLayer('https://wmts.nlsc.gov.tw/wmts/PHOTO2/default/EPSG:3857/{z}/{y}/{x}.png', {
-					maxZoom:19
-				});				
-		map = L.map('map_canvas', {
+		var EMAP = L.tileLayer(
+'https://wmts.nlsc.gov.tw/wmts/EMAP/default/EPSG:3857/{z}/{y}/{x}.png',
+{
+    maxZoom:20
+});
+
+var EMAP_OVERLAY = L.tileLayer(
+'https://wmts.nlsc.gov.tw/wmts/EMAP/default/EPSG:3857/{z}/{y}/{x}.png',
+{
+    maxZoom:20,
+    opacity:0.53
+});
+
+var PHOTO2 = L.tileLayer(
+'https://wmts.nlsc.gov.tw/wmts/PHOTO2/default/EPSG:3857/{z}/{y}/{x}.png',
+{
+    maxZoom:20
+});			
+map = L.map('map_canvas', {
     center:[24.13697523335307,120.63690893068728],
     zoom:18,
     layers:[EMAP]
 });
+
+EMAP_OVERLAY.addTo(map);
 
 if(window.innerWidth <= 768){
 
@@ -1286,11 +1339,20 @@ redCircles.push({
 
 
 				// 2019/04/20 Layer Groups and Layers Control
-				var baseLayers = {
-					"電子地圖": EMAP,
-					"正射影像": PHOTO2
-				};
-				L.control.layers(baseLayers).addTo(map);				 
+			var baseLayers = {
+    "電子地圖": EMAP,
+    "正射影像": PHOTO2
+};
+
+var overlayMaps = {
+    "電子地圖疊加": EMAP_OVERLAY
+};
+
+L.control.layers(
+    baseLayers,
+    overlayMaps
+).addTo(map);
+								 
 
 				// 2019/04/04 treating StreetView as Custom Controls
 				// https://developers.google.com/maps/documentation/javascript/examples/control-custom
@@ -1317,7 +1379,7 @@ redCircles.push({
 					return new L.Control.StreeView(opts);
 				}
 				
-				L.control.streetView({ position: 'bottomright' }).addTo(map);
+				// L.control.streetView({ position: 'bottomright' }).addTo(map);
 				
 map.on("zoomend", refreshTBMarkers);
 map.on("moveend", refreshTBMarkers);
@@ -5204,6 +5266,31 @@ house;
 reverseAddress.value = result;
 txtAddressSearch.value = result;
 
+// USER 地址
+var userAddrBox =
+document.getElementById(
+    "addressSearchInput"
+);
+
+if(userAddrBox){
+    userAddrBox.value = result;
+}
+
+// NDCIS 地址
+var ndcisAddr =
+document.getElementById(
+    "ndcisAddressSearch"
+);
+
+if(ndcisAddr){
+    ndcisAddr.value =
+        result.replace(
+            /\[.*$/,
+            ""
+        );
+}
+
+
 //var addressBox =
 //document.getElementById(
     //"addressSearchInput"
@@ -8050,7 +8137,77 @@ font-weight:bold;
 		 <a id="TEL" href="" target=_blank>區處分機</a>
 		 <a id="ONDCIS" href="" target=_blank>外連ND</a>
 		<a id="Orest" href="" target=_blank>行動假單</a>
-		</div><br>
+		</div>
+		<div class="linkRow">
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+			<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+			<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+		<a></a>
+			<a></a>
+		<a></a>
+		<a></a>
+		
+		<a></a>
+		<a></a>
+		<a></a>
+	
+		
+		
+		<div style="
+margin-top:0px;
+margin-bottom:1px;
+">
+<button
+    onclick="toggleGoogleMap()"
+    id="googleBtn"
+    style="
+    padding:3px 3px;
+    ">
+     顯示 Google 衛星圖 
+</button>
+</div>
+		
+		
+		</div>
+		
+	
+		
+		
+		
 
 	</TD>
 
@@ -8104,6 +8261,8 @@ resize:vertical;
 
 
 <!-- 地圖+街景 -->
+
+
 <div id="mapStreetContainer"
      style="
      display:flex;
@@ -8113,21 +8272,30 @@ resize:vertical;
 
     <div id="map_canvas"
          style="
-         flex:6;
+         flex:5.4;
          height:100%;
          ">
     </div>
 
+    <iframe
+      id="googleMapView"
+      style="
+      display:none;
+      flex:4;
+      height:100%;
+      border:1px solid #999;
+      ">
+    </iframe>
+
     <div id="streetview"
          style="
-         flex:5;
+         flex:4.6;
          height:100%;
          border:1px solid #999;
          ">
     </div>
 
 </div>
-
 
 
 
@@ -10822,6 +10990,60 @@ function togglePanel(panelId, btn){
 }
 </script>
 <script>
+
+function toggleGoogleMap(){
+
+    var googleMap =
+        document.getElementById(
+            "googleMapView"
+        );
+
+    var btn =
+        document.getElementById(
+            "googleBtn"
+        );
+
+    if(
+        googleMap.style.display === "none"
+    ){
+
+        googleMap.style.display = "";
+
+        document.getElementById(
+            "map_canvas"
+        ).style.flex = "4";
+
+        document.getElementById(
+            "streetview"
+        ).style.flex = "4";
+
+        btn.innerHTML =
+            " 隱藏 Google 衛星圖 ";
+
+    }else{
+
+        googleMap.style.display = "none";
+
+        document.getElementById(
+            "map_canvas"
+        ).style.flex = "5.4";
+
+        document.getElementById(
+            "streetview"
+        ).style.flex = "4.6";
+
+        btn.innerHTML =
+            " 顯示 Google 衛星圖 ";
+    }
+
+    setTimeout(function(){
+        if(map){
+            map.invalidateSize();
+        }
+    },300);
+}
+
+
 window.addEventListener("load", function(){
 
     var explain =
