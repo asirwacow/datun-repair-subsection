@@ -529,20 +529,28 @@ if(
         if(exactMatchBtn){
 
     exactMatchBtn.click();
+	
+	if(typeof executeAddressSearch === "function"){
+    executeAddressSearch();
+}
 
     return;
 
 }
 
+
+
 if(
     partialCount === 1 &&
     partialMatchBtn
 ){
-
     partialMatchBtn.click();
 
-    return;
+    if(typeof executeAddressSearch === "function"){
+        executeAddressSearch();
+    }
 
+    return;
 }
 
      // =====找不到完全符合=====
@@ -5304,16 +5312,34 @@ if (picNo5.substring(0, 2) === "99") {
 		
 function queryByAddressOnly(addr){
 
-    // Google地圖
     window.open(
         "https://www.google.com/maps/search/?api=1&query="
         + encodeURIComponent(addr),
         "_blank"
     );
 
-    // USER搜尋並定位
-    searchAddressAndLocate(addr);
+    var userBox =
+        document.getElementById(
+            "addressSearchInput"
+        );
 
+    if(userBox){
+
+        userBox.value =
+            toFullWidthNumber(addr);
+
+        userBox.dispatchEvent(
+            new KeyboardEvent(
+                "keypress",
+                {
+                    key:"Enter",
+                    bubbles:true
+                }
+            )
+        );
+    }
+
+    searchAddressAndLocate(addr);
 }
 
 	function reverseGPSAddress(lng, lat){
@@ -7002,7 +7028,40 @@ custNameSearchInput.addEventListener(
         if (e.key === 'Enter') executeAddressSearch();
     });
 
+function clearUserSearchFields(exceptId){
+
+    const ids = [
+        "addressSearchInput",
+        "tpcSearchInput",
+        "custNoSearchInput",
+        "custNameSearchInput"
+    ];
+
+    ids.forEach(function(id){
+
+        if(id !== exceptId){
+
+            var obj =
+                document.getElementById(id);
+
+            if(obj){
+                obj.value = "";
+            }
+
+        }
+
+    });
+
+}
+
+
+
+
 function executeAddressSearch() {
+
+clearUserSearchFields(
+    "addressSearchInput"
+);
 
     searchInput.value =
         toFullWidthNumber(
@@ -7202,6 +7261,10 @@ if(
 
 function executeTpcSearch(){
 
+clearUserSearchFields(
+    "tpcSearchInput"
+);
+
     var keyword =
         tpcSearchInput.value
         .trim()
@@ -7364,6 +7427,12 @@ if(area!==""){
 
 function executeCustNoSearch(){
 
+var currentCustNo =
+document.getElementById(
+    "custNoSearchInput"
+).value;
+
+
     var keyword =
         document.getElementById(
             "custNoSearchInput"
@@ -7426,6 +7495,10 @@ if(results.length > 0){
 
     // 9碼、10碼以下顯示全部符合資料
     if(keyword.length < 11){
+	
+	document.getElementById(
+    "custNoSearchInput"
+).value = currentCustNo;
 
         renderResults(results);
 
@@ -7472,6 +7545,8 @@ if(results.length > 0){
 
 if(tpc.length >= 6){
 
+    var keepCustNo = keyword;
+
     txtTPC.value = tpc;
 
     queryByTPC(tpc);
@@ -7480,6 +7555,14 @@ if(tpc.length >= 6){
         "currentSearchTpc"
     ).value =
         tpc.substring(0,7);
+
+    setTimeout(function(){
+
+        document.getElementById(
+            "custNoSearchInput"
+        ).value = keepCustNo;
+
+    },1200);
 
     // searchTpcInCsv(
     //     tpc.substring(0,7)
@@ -7494,6 +7577,12 @@ if(tpc.length >= 6){
         document.getElementById(
             "tpcSearchInput"
         ).value = tpc.substring(0,7);
+		
+		
+		document.getElementById(
+    "custNoSearchInput"
+).value =
+    keepCustNo;
 
         document.getElementById(
             "currentSearchTpc"
@@ -7524,6 +7613,10 @@ if(tpc.length >= 6){
 }
 
 function executeCustNameSearch(){
+
+clearUserSearchFields(
+    "custNameSearchInput"
+);
 
     var keyword =
         document.getElementById(
