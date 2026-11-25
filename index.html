@@ -581,10 +581,14 @@ userBox.dispatchEvent(
 		
 function queryByGPS(a, c, b, d) {
 
-    var e = a.split(",");
-    a = e[0];
-    var f = e[1];
+ var e = a.split(",");
+a = e[0];
+var f = e[1];
 
+// 非OMS模式時清空DATA OMS
+if(!omsMode){
+    document.getElementById("omsSearch").value = "";
+}
     reverseGPSAddress(a, f);
 
    if (
@@ -667,17 +671,23 @@ if(userTpcBox){
 }
 
 // NDCIS 圖號座標
-var ndcisTpcBox =
-document.getElementById(
-    "ndcisTpcSearch"
-);
+if(!omsMode){
 
-if(ndcisTpcBox){
-    ndcisTpcBox.value =
-        c.substring(0,7);
+    var ndcisTpcBox =
+    document.getElementById(
+        "ndcisTpcSearch"
+    );
 
-    searchNDCIS();
+    if(ndcisTpcBox){
+        ndcisTpcBox.value =
+            c.substring(0,7);
+
+        searchNDCIS();
+    }
+
 }
+
+
 
 
 // 不啟動複合搜尋
@@ -698,9 +708,12 @@ if(ndcisTpcBox){
 			b&&geocoder.geocode({location:new google.maps.LatLng(f,a)},function(a,b){b==google.maps.GeocoderStatus.OK?txtAddress.value=a[0].formatted_address:alert("\u5730\u5740\u67e5\u8a62\u932f\u8aa4\uff1a"+
 			b)})*/
 		
-		function queryByTPC(a) {
-			if (5 > a.length)
-				alert("\u53f0\u96fb\u5ea7\u6a19\u932f\u8aa4\uff1a" + a);
+	function queryByTPC(a) {
+
+    document.getElementById("omsSearch").value = "";
+
+    if (5 > a.length)
+        alert("台電座標錯誤：" + a);
 			else {
 				a = a.toUpperCase();
 				var c = a.substring(0, 6).trim() + a.substring(6, a.length);
@@ -1155,6 +1168,8 @@ zoom:1
 
 map.on('contextmenu', function () {
 
+    document.getElementById("omsSearch").value = "";
+
     var center = map.getCenter();
     var lat = center.lat;
     var lng = center.lng;
@@ -1277,16 +1292,13 @@ document.getElementById(
     "ndcisAddressSearch"
 );
 
-if(ndcisAddr){
-
-    var shortAddr =
-        reverseAddress.value
-        .replace(/[０-９0-9].*$/,"");
+if(!omsMode && ndcisAddr){
 
     ndcisAddr.value =
-        shortAddr;
-
-    searchNDCIS();
+        result.replace(
+            /\[.*$/,
+            ""
+        );
 }
 
 
@@ -4954,7 +4966,9 @@ if(map.getZoom() >= 17){
 			})
 			*/
 			// 2019/04/20 replace google.maps.event with L.Event
-		a.on('dragend', function (c) {
+a.on('dragend', function (c) {
+
+    document.getElementById("omsSearch").value = "";
 
     var lng = c.target.getLatLng().lng;
     var lat = c.target.getLatLng().lat;
@@ -5312,6 +5326,8 @@ if (picNo5.substring(0, 2) === "99") {
 		
 function queryByAddressOnly(addr){
 
+    document.getElementById("omsSearch").value = "";
+
     window.open(
         "https://www.google.com/maps/search/?api=1&query="
         + encodeURIComponent(addr),
@@ -5411,12 +5427,15 @@ document.getElementById(
     "ndcisAddressSearch"
 );
 
-if(ndcisAddr){
+if(!omsMode && ndcisAddr && !firstLoad){
+
     ndcisAddr.value =
         result.replace(
-            /\[.*$/,
+            /\[台號-\d+\].*$/,
             ""
         );
+
+    searchNDCIS();
 }
 
 
@@ -5429,21 +5448,6 @@ if(ndcisAddr){
     //addressBox.value = result;
 //}
 
-var ndcisAddr =
-document.getElementById(
-    "ndcisAddressSearch"
-);
-
-if(ndcisAddr && !firstLoad){
-
-    ndcisAddr.value =
-        result.replace(
-            /[０-９0-9].*$/,
-            ""
-        );
-
-    searchNDCIS();
-}
 
 var accAddressBox =
 document.getElementById(
@@ -5550,6 +5554,7 @@ document.getElementById("csvLoadStatus").style.color =
 }
 
 // 原本的資料庫
+var omsMode = false;
 var globalCsvDatabase = [];
 var ndcisDatabase = [];
 
@@ -6603,6 +6608,27 @@ var customerKeyword =
     .trim()
     .toUpperCase();
 
+if(
+    omsKeyword === "" &&
+    tpcKeyword === "" &&
+    typeKeyword === "" &&
+    addressKeyword === "" &&
+    dateKeyword === "" &&
+    feederKeyword === "" &&
+    customerKeyword === ""
+){
+    document.getElementById(
+        "csvResultPanel"
+    ).style.display = "none";
+
+    document.getElementById(
+        "defaultCsvTable"
+    ).style.display = "";
+
+    return;
+}
+
+
 
     var matchRecords =
         globalCsvDatabase.filter(function(item){
@@ -6814,7 +6840,7 @@ rowOms.replace(/'/g,"\\'") +
     html += "</tr>";
 
 });
-``
+
 
     html += "</table>";
 
@@ -7059,7 +7085,9 @@ function clearUserSearchFields(exceptId){
 
 function executeAddressSearch() {
 
-clearUserSearchFields(
+    document.getElementById("omsSearch").value = "";
+
+    clearUserSearchFields(
     "addressSearchInput"
 );
 
@@ -7333,11 +7361,16 @@ searchTpcInCsv(
 updateLineArea(keyword);
 
 // 自動同步到 NDCIS 圖號座標
-document.getElementById(
-    "ndcisTpcSearch"
-).value = keyword.substring(0,7);
+// NDCIS
+if(!omsMode){
 
-searchNDCIS();
+    document.getElementById(
+        "ndcisTpcSearch"
+    ).value = keyword.substring(0,7);
+
+    searchNDCIS();
+
+}
 
 renderResults(results);
 }
@@ -8426,7 +8459,7 @@ margin-bottom:1px;
     style="
     padding:3px 3px;
     ">
-     顯示 Google 衛星圖 
+     顯示Google衛星圖 
 </button>
 </div>
 		
@@ -9835,11 +9868,39 @@ placeholder="1150900XXXX"
 oninput="
 debounceSearchCombined();
 
+omsMode = true;
+
 var ndcisOms =
-document.getElementById('ndcisOmsSearch');
+document.getElementById(
+    'ndcisOmsSearch'
+);
 
 if(ndcisOms){
-    ndcisOms.value=this.value;
+
+    document.getElementById(
+        'ndcisOmsSearch'
+    ).value = '';
+
+    document.getElementById(
+        'ndcisDcisSearch'
+    ).value = '';
+
+    document.getElementById(
+        'ndcisTpcSearch'
+    ).value = '';
+
+    document.getElementById(
+        'ndcisAddressSearch'
+    ).value = '';
+
+    document.getElementById(
+        'ndcisContentSearch'
+    ).value = '';
+
+    document.getElementById(
+        'ndcisOmsSearch'
+    ).value = this.value;
+
     searchNDCIS();
 }
 
@@ -9863,7 +9924,7 @@ if(omsValue.length>=5){
         var addr =
             rec['用戶地址'] || '';
 
-        if(tpc){
+if(tpc){
 
     txtTPC.value=tpc;
 
@@ -9882,12 +9943,15 @@ if(omsValue.length>=5){
         new Event('input')
     );
 
-    searchTpcInCsv(tpc);
+   searchTpcInCsv(tpc);
 
+if(!omsMode){
     queryByTPC(tpc);
 }
 
-       if(addr){
+}
+
+   if(addr){
 
     var userAddrBox =
     document.getElementById(
@@ -9913,27 +9977,31 @@ if(omsValue.length>=5){
     );
 }
 
-        setTimeout(function(){
+       
 
-            document.getElementById(
-                'addressSearchInput'
-            ).value=addr;
+    setTimeout(function(){
 
-            document.getElementById(
-                'txtAddressSearch'
-            ).value=addr;
+        document.getElementById(
+            'addressSearchInput'
+        ).value=addr;
 
-            document.getElementById(
-                'reverseAddress'
-            ).value=addr;
+        document.getElementById(
+            'txtAddressSearch'
+        ).value=addr;
 
-            document.getElementById(
-                'accidentAddressSearch'
-            ).value=addr;
+        document.getElementById(
+            'reverseAddress'
+        ).value=addr;
 
-            txtTPC.value=tpc;
+        document.getElementById(
+            'accidentAddressSearch'
+        ).value=addr;
 
-        },1000);
+        txtTPC.value=tpc;
+
+    },1000);
+
+
     }
 }
 
@@ -9944,6 +10012,12 @@ document.getElementById(
 document.getElementById(
 'defaultCsvTable'
 ).style.display='none';
+
+setTimeout(function(){
+
+    omsMode = false;
+
+},2000);
 
 "
 
@@ -10740,14 +10814,21 @@ document.getElementById(
         ).value = oms;
     }
 
+if(!oms){
+
     var shortAddr =
         String(address || "")
-        .replace(/[０-９0-9].*$/,"")
+        .replace(
+            /\[台號-\d+\].*$/,
+            ""
+        )
         .trim();
 
-   document.getElementById(
-    "ndcisAddressSearch"
-).value = shortAddr;
+    document.getElementById(
+        "ndcisAddressSearch"
+    ).value = shortAddr;
+
+}
 
     searchNDCIS();
 }
@@ -10782,6 +10863,24 @@ function searchNDCIS(){
     document.getElementById(
         "ndcisContentSearch"
     ).value.trim();
+	
+	if(
+    oms === "" &&
+    dcis === "" &&
+    tpc === "" &&
+    addr === "" &&
+    content === ""
+){
+    document.getElementById(
+        "ndcisResultPanel"
+    ).style.display = "none";
+
+    document.getElementById(
+        "defaultNdcisTable"
+    ).style.display = "";
+
+    return;
+}
 		
 		
 
@@ -11097,10 +11196,12 @@ function getCurrentLocation(){
 
     navigator.geolocation.getCurrentPosition(
 
-        function(position){
+ function(position){
 
-            var lat = position.coords.latitude;
-            var lng = position.coords.longitude;
+    document.getElementById("omsSearch").value = "";
+
+    var lat = position.coords.latitude;
+    var lng = position.coords.longitude;
 
             txtGoogle.value =
                 lng + "," + lat;
@@ -11260,7 +11361,7 @@ function toggleGoogleMap(){
         ).style.flex = "4";
 
         btn.innerHTML =
-            " 隱藏 Google 衛星圖 ";
+            " 隱藏Google衛星圖 ";
 
     }else{
 
@@ -11275,7 +11376,7 @@ function toggleGoogleMap(){
         ).style.flex = "4.6";
 
         btn.innerHTML =
-            " 顯示 Google 衛星圖 ";
+            " 顯示Google衛星圖 ";
     }
 
     setTimeout(function(){
@@ -11300,6 +11401,11 @@ window.addEventListener("load", function(){
     }
 
 });
+
+function clearDataOms(){
+    document.getElementById("omsSearch").value = "";
+}
+
 </script>
 
 
